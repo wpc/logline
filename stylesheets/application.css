@@ -1,0 +1,42 @@
+#request-timeline-view {
+  width: 100%;
+  height: 600px;
+  background-color: #ccc;
+  border-color: #d5d5d5;
+  border-width: 0 0 1px; /* drop the border on the fixed edges */
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,.1);
+  -moz-box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,.1);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 5px rgba(0,0,0,.1);
+}
+
+rect.overlay {
+  fill: #ddd;
+}
+
+.grid line {
+  stroke: #fff;
+}
+
+.grid line.minor {
+  stroke-width: .5px;
+}
+
+.grid text {
+  display: none;
+}
+
+.axis line {
+  stroke: #000;
+}
+
+path {
+  display: none;
+}
+
+line.indicator {
+  stroke: #000;
+  fill: #000;
+}
