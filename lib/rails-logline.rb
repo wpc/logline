@@ -54,7 +54,7 @@ module RailsLogLine
     def self.extract_entries(log_content)
       ret = []
       merge_rsyslog_wrapping(encoding_convert(log_content).gsub("\n\n", ' ')).each_line do |l|
-        if l =~ /\[([0-9\-\s:,]+)\]\s\[([^\]]*)\]\s\[[^\]]*\]\s(.*)$/
+        if l =~ /\[([0-9\-\s:,]+)\]\s\[([^\]]*)\]\s\[[^\]]*\]\s\[[^\]]*\]\s(.*)$/
           # $1 is time, $2 is thread id, $3 is log content
           ret << LogEntry.new(DateTime.parse($1), $2, $3)
         end
@@ -69,15 +69,15 @@ module RailsLogLine
         current_req = nil
         es.each do |entry|
           entry_content = entry.content.strip
-          if entry_content =~ /Processing (\w+)#(\w+) \(for ([\d\.]+) at .*\) \[(\w+)\]$/
+          if entry_content =~ /Processing (\w+)#(\w+) ([\w\s]*)\(for ([\d\.]+) at .*\) \[(\w+)\]$/
             controller = $1
             action = $2
             requests << current_req if current_req
             current_req = Request.new
             current_req.start_at = entry.time
-            current_req.format = "html"
-            current_req.client_ip = $3
-            current_req.http_method = $4
+            current_req.format = $3 =~ /\s*/ ? "html" : $3
+            current_req.client_ip = $4
+            current_req.http_method = $5
             current_req.action_label = controller.gsub(/Controller$/, " ") + action
 
           elsif entry_content =~ /^Parameters: ({.*})$/
