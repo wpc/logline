@@ -102,8 +102,9 @@
             var tranevents = data.filter(t.events.isTransient);
             t.event_slots.assign(durevents);
 
-            var scaleDomain = [t.events.startAt(d3.first(durevents)),
-                               t.events.finishAt(d3.last(durevents))];
+            var axisStart = t.events.startAt(d3.first(durevents));
+            var axisEnd = new Date(axisStart.getTime() + 60 * 60 * 1000);
+            var scaleDomain = [ axisStart, axisEnd ];
             datex.domain(t.utils.extendDateRange(scaleDomain, 0.01));
 
             function redraw() {

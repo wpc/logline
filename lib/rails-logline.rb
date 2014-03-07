@@ -23,6 +23,10 @@ module RailsLogLine
       return '#fdae6b' if self.incomplete
       '#3182bd'
     end
+
+    def to_h
+      Hash[each_pair.to_a]
+    end
   end
 
   class Reboot < Struct.new(:at)
@@ -33,6 +37,11 @@ module RailsLogLine
     def serialize_hash
       to_h.merge("identifier" => Digest::MD5.hexdigest("#{at} server reboot"), "description" => 'Server reboot', 'color' => '#000')
     end
+
+    def to_h
+      Hash[each_pair.to_a]
+    end
+
   end
 
   class LogEntry
@@ -69,6 +78,8 @@ module RailsLogLine
         current_req = nil
         es.each do |entry|
           entry_content = entry.content.strip
+
+          # puts  "#{entry.time} #{entry_content}"
           if entry_content =~ /Processing (\w+)#(\w+) ([\w\s]*)\(for ([\d\.]+) at .*\) \[(\w+)\]$/
             controller = $1
             action = $2
@@ -92,7 +103,7 @@ module RailsLogLine
             if current_req
               current_req.user = $1
             end
-          elsif entry_content =~ /^Completed in (\d+)ms \([^\|]+\| (\d+) [^\[]+\[(.*)\]$/
+          elsif entry_content =~ /^Completed in (\d+)ms \([^\|]+\| (\d+) [^\[]+\[(.*)$/
             if current_req
               current_req.finish_at = entry.time
               current_req.processing_time = $1
