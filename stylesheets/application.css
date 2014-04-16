@@ -1,6 +1,6 @@
 #request-timeline-view {
   width: 100%;
-  height: 600px;
+  height: 500px;
   background-color: #ccc;
   border-color: #d5d5d5;
   border-width: 0 0 1px; /* drop the border on the fixed edges */

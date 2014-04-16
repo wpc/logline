@@ -56,6 +56,10 @@ module RailsLogLine
   end
 
   class LogParser
+    MINGLE_LOG_PATTERN = /\[([0-9\-\s:,]+)\]\s\[([^\]]*)\]\s\[[^\]]*\]\s(.*)$/
+    MINGLE_SAAS_LOG_PATTERN = /\[([0-9\-\s:,]+)\]\s\[([^\]]*)\]\s\[[^\]]*\]\s\[[^\]]*\]\s(.*)$/
+
+
     def self.parse(log_content)
       extract_events(extract_entries(log_content))
     end
@@ -63,7 +67,7 @@ module RailsLogLine
     def self.extract_entries(log_content)
       ret = []
       merge_rsyslog_wrapping(encoding_convert(log_content).gsub("\n\n", ' ')).each_line do |l|
-        if l =~ /\[([0-9\-\s:,]+)\]\s\[([^\]]*)\]\s\[[^\]]*\]\s\[[^\]]*\]\s(.*)$/
+        if l =~ MINGLE_LOG_PATTERN
           # $1 is time, $2 is thread id, $3 is log content
           ret << LogEntry.new(DateTime.parse($1), $2, $3)
         end
@@ -78,8 +82,7 @@ module RailsLogLine
         current_req = nil
         es.each do |entry|
           entry_content = entry.content.strip
-
-          # puts  "#{entry.time} #{entry_content}"
+          # puts "#{entry.time} #{entry_content}"
           if entry_content =~ /Processing (\w+)#(\w+) ([\w\s]*)\(for ([\d\.]+) at .*\) \[(\w+)\]$/
             controller = $1
             action = $2
@@ -176,7 +179,7 @@ module RailsLogLine
 
 
     def self.merge_rsyslog_wrapping(content)
-      content.gsub!(/\.\.\.[^.]*\.\.\./, '')
+      content.gsub!(/\.\.\.[^.]*\.\.\./m, '')
       content
     end
 

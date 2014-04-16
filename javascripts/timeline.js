@@ -28,7 +28,21 @@
             .attr("width", function(d) { return t.events.duration(d, datex);})
             .attr('fill', function(d) { return t.events.color(d); })
             .attr("stroke-width", '2')
-            .attr('title', JSON.stringify);
+            .on('click',  function(d, i) {
+                $("ul.request-info").remove();
+                var requestinfo =$("<ul />")
+                    .attr('class', 'request-info');
+                requestinfo.append($("<li />")
+                                   .text("Time: " + d["start_at"]));
+                requestinfo.append($("<li />")
+                                   .text("URL: " + d["url"]));
+                requestinfo.append($("<li />")
+                                   .text("Response Code: " + d["response_status"]));
+                requestinfo.append($("<li />")
+                                   .text("Processing Time: " + d["processing_time"] + "s"));
+                $(document.body).append(requestinfo);
+            });
+
     }
 
     function drawEvents(svg, datex, data) {
