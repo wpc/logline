@@ -2,6 +2,15 @@ if (typeof(timeline) === 'undefined') { timeline = function() {}; }
 
 timeline.utils = (function(t) {
     return {
+        toUTC: function(date) {
+            return new Date(date.getUTCFullYear(),
+                            date.getUTCMonth(),
+                            date.getUTCDate(),
+                            date.getUTCHours(),
+                            date.getUTCMinutes(),
+                            date.getUTCSeconds());
+        },
+
         hashCode: function(str) {
             var hash = 0;
             if (str.length == 0) return hash;
