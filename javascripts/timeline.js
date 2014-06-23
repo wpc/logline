@@ -35,6 +35,10 @@
                 requestinfo.append($("<li />")
                                    .text("Time: " + d["start_at"]));
                 requestinfo.append($("<li />")
+                                   .text("Action: " + d["action_label"]));
+                requestinfo.append($("<li />")
+                                   .text("Parameters: " + d["parameters_raw"]));
+                requestinfo.append($("<li />")
                                    .text("URL: " + d["url"]));
                 requestinfo.append($("<li />")
                                    .text("Response Code: " + d["response_status"]));

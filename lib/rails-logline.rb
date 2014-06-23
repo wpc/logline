@@ -66,7 +66,7 @@ module RailsLogLine
 
     def self.extract_entries(log_content)
       ret = []
-      merge_rsyslog_wrapping(encoding_convert(log_content).gsub("\n\n", ' ')).each_line do |l|
+      merge_rsyslog_wrapping(encoding_convert(log_content).gsub("\n\n", ' ').gsub("\r\n\r\n", ' ')).each_line do |l|
         if l =~ MINGLE_LOG_PATTERN
           # $1 is time, $2 is thread id, $3 is log content
           ret << LogEntry.new(DateTime.parse($1), $2, $3)
@@ -82,7 +82,7 @@ module RailsLogLine
         current_req = nil
         es.each do |entry|
           entry_content = entry.content.strip
-          # puts "#{entry.time} #{entry_content}"
+          # $stderr.puts "#{entry.time} #{entry_content}"
           if entry_content =~ /Processing (\w+)#(\w+) ([\w\s]*)\(for ([\d\.]+) at .*\) \[(\w+)\]$/
             controller = $1
             action = $2
@@ -155,7 +155,7 @@ module RailsLogLine
               requests << current_req
               current_req = nil
             end
-          elsif entry_content =~ /Logging to org\.slf4j\.impl.Log4jLoggerAdapter/
+          elsif entry_content =~ /(Logging to org\.slf4j\.impl.Log4jLoggerAdapter|Loading web.xml from)/
             reboots << Reboot.new(entry.time)
           end
 

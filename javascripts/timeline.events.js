@@ -1,12 +1,17 @@
 if (typeof(timeline) === 'undefined') { timeline = function() {}; }
 
 timeline.events = (function(t) {
+    function toUTC(date) {
+      return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds());
+    }
+
+
     function startAt(datum) {
-        return new Date(datum.start_at);
+        return toUTC(new Date(datum.start_at));
     }
 
     function finishAt(datum) {
-        return datum.finish_at ? new Date(datum.finish_at) : null;
+        return datum.finish_at ? toUTC(new Date(datum.finish_at)) : null;
     }
 
     function isDuration(datum) {
@@ -31,7 +36,7 @@ timeline.events = (function(t) {
         },
 
         at: function(datum) {
-            return new Date(datum.at);
+            return toUTC(new Date(datum.at));
         },
 
         id: function(datum) {
