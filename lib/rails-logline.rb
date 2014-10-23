@@ -83,7 +83,7 @@ module RailsLogLine
         es.each do |entry|
           entry_content = entry.content.strip
           # $stderr.puts "#{entry.time} #{entry_content}"
-          if entry_content =~ /Processing (\w+)#(\w+) ([\w\s]*)\(for ([\d\.]+) at .*\) \[(\w+)\]$/
+          if entry_content =~ /Processing (\w+)#(\w+) ([\w\s]*)\(for ([\d\.:]+) at .*\) \[(\w+)\]$/
             controller = $1
             action = $2
             requests << current_req if current_req

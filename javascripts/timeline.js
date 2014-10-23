@@ -25,7 +25,7 @@
         rects.attr("x", function(d) { return datex(t.events.startAt(d)); })
             .attr("y", function(d) { return 5 + d.slotIndex * 20; })
             .attr("height", 10)
-            .attr("width", function(d) { return t.events.duration(d, datex);})
+            .attr("width", function(d) { return "" + t.events.duration(d, datex);})
             .attr('fill', function(d) { return t.events.color(d); })
             .attr("stroke-width", '2')
             .on('click',  function(d, i) {
@@ -43,7 +43,7 @@
                 requestinfo.append($("<li />")
                                    .text("Response Code: " + d["response_status"]));
                 requestinfo.append($("<li />")
-                                   .text("Processing Time: " + d["processing_time"] + "s"));
+                                   .text("Processing Time: " + d["processing_time"] + "ms"));
                 $(document.body).append(requestinfo);
             });
 
@@ -125,9 +125,17 @@
             var scaleDomain = [ axisStart, axisEnd ];
             datex.domain(t.utils.extendDateRange(scaleDomain, 0.01));
 
+            var delayedDraw = null;
             function redraw() {
-                drawEvents(svg, datex, durevents);
-                drawIndicator(svg, datex, tranevents);
+                if(delayedDraw) {
+                    clearTimeout(delayedDraw);
+                    delayedDraw = null;
+                }
+
+                delayedDraw = setTimeout(function() {
+                    drawEvents(svg, datex, durevents);
+                    drawIndicator(svg, datex, tranevents);
+                }, 500);
             }
 
             var zoom = d3.behavior.zoom()

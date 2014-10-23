@@ -27,7 +27,7 @@ timeline.events = (function(t) {
         duration: function(datum, scale) {
             var endtime = finishAt(datum);
             var endpoint = endtime ?  scale(endtime) : d3.last(scale.range());
-            return endpoint - scale(startAt(datum));
+            return Math.max(endpoint - scale(startAt(datum)), 1);
         },
 
         at: function(datum) {
