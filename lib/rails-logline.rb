@@ -190,7 +190,13 @@ module RailsLogLine
 end
 
 
+
 if ARGV[0]
-  events = RailsLogLine::LogParser.parse(File.read(ARGV[0]))
+  events = []
+  ARGV.each do |f|
+    events += RailsLogLine::LogParser.parse(File.read(f))
+  end
+  events = events.sort_by { |event| event.start_at }
+
   puts JSON.dump(events.map { |event| event.serialize_hash })
 end

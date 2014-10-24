@@ -22,12 +22,24 @@
     }
 
     function updateEventRects(rects, datex) {
-        rects.attr("x", function(d) { return datex(t.events.startAt(d)); })
-            .attr("y", function(d) { return 5 + d.slotIndex * 20; })
-            .attr("height", 10)
+        rects
+            .attr("x", function(d) { return datex(t.events.startAt(d)); })
             .attr("width", function(d) { return "" + t.events.duration(d, datex);})
+    }
+
+    function drawEvents(svg, datex, data) {
+        var rects = svg.selectAll("rect.event")
+            .data(data, t.events.id);
+
+        rects.call(updateEventRects, datex);
+
+        rects.enter().append("rect")
+            .attr('class', 'event')
+            .call(updateEventRects, datex)
             .attr('fill', function(d) { return t.events.color(d); })
             .attr("stroke-width", '2')
+            .attr("height", 10)
+            .attr("y", function(d) { return 5 + d.slotIndex * 20; })
             .on('click',  function(d, i) {
                 $("ul.request-info").remove();
                 var requestinfo =$("<ul />")
@@ -46,20 +58,7 @@
                                    .text("Processing Time: " + d["processing_time"] + "ms"));
                 $(document.body).append(requestinfo);
             });
-
-    }
-
-    function drawEvents(svg, datex, data) {
-        drawXAxis(svg, datex, data);
-
-        var rects = svg.selectAll("rect.event")
-            .data(data, t.events.id);
-
-        rects.call(updateEventRects, datex);
-
-        rects.enter().append("rect")
-            .attr('class', 'event')
-            .call(updateEventRects, datex);
+;
 
         rects.exit().remove();
     }
@@ -86,6 +85,7 @@
 
     }
 
+
     $.fn.timeline = function() {
 
         var outerwidth = this.outerWidth();
@@ -94,8 +94,6 @@
         w = outerwidth - m[1] - m[3],
         h = 500 - m[0] - m[2];
         var datex = d3.time.scale().range([0, w]);
-
-
         var svg = d3.select(this[0]).append("svg")
             .attr("width", w + m[1] + m[3])
             .attr("height", h + m[0] + m[2])
@@ -103,17 +101,15 @@
             .append("g")
             .attr("transform", "translate(" + (m[3] + 3)  + "," + m[0] + ")");
 
-        svg.append("rect")
-            .attr("class", 'overlay')
+        var rect = svg.append("rect")
             .attr("width", w)
-            .attr("height", h);
+            .attr("height", h)
+            .style("fill", "none")
+            .style("pointer-events", "all");
 
-        var dragpan = svg.select("rect.dragpan");
-        if(dragpan.empty()) {
-            dragpan = svg.append("svg:rect")
-                .attr("class", "dragpan")
-                .attr("fill", "transparent");
-        }
+        var container = svg.append("g");
+
+
 
         d3.json(dataurl, function(data) {
             var durevents = data.filter(t.events.isDuration);
@@ -125,29 +121,25 @@
             var scaleDomain = [ axisStart, axisEnd ];
             datex.domain(t.utils.extendDateRange(scaleDomain, 0.01));
 
-            var delayedDraw = null;
-            function redraw() {
-                if(delayedDraw) {
-                    clearTimeout(delayedDraw);
-                    delayedDraw = null;
-                }
+            var lastRedraw = null;
+            var redraw = function() {
+                drawXAxis(svg, datex, data);
+                drawIndicator(container, datex, tranevents);
 
-                delayedDraw = setTimeout(function() {
-                    drawEvents(svg, datex, durevents);
-                    drawIndicator(svg, datex, tranevents);
-                }, 500);
+                if(lastRedraw) {
+                    clearTimeout(lastRedraw);
+                }
+                lastRedraw = setTimeout(function() {
+                    drawEvents(container, datex, durevents);
+                }, (durevents.length / 100));
             }
 
             var zoom = d3.behavior.zoom()
                 .x(datex)
                 .on("zoom", redraw);
 
-            dragpan.attr("x", 0)
-                .attr("y", 0)
-                .attr("width", w)
-                .attr("height", h + m[2])
-                .call(zoom);
 
+            svg.call(zoom);
             redraw();
 
         });
