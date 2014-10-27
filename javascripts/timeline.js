@@ -40,6 +40,13 @@
             .attr("stroke-width", '2')
             .attr("height", 10)
             .attr("y", function(d) { return 5 + d.slotIndex * 20; })
+            .on("mouseover", function(d) {
+                var rect = d3.select(this);
+                rect.transition().duration(100).attr("width", t.events.duration(d, datex) + 5);
+            })
+            .on("mouseout", function(d) {
+                d3.select(this).transition().duration(100).attr("width", t.events.duration(d, datex));
+            })
             .on('click',  function(d, i) {
                 $("ul.request-info").remove();
                 var requestinfo =$("<ul />")
@@ -85,9 +92,7 @@
 
     }
 
-
     $.fn.timeline = function() {
-
         var outerwidth = this.outerWidth();
         var dataurl = $(this).data("timeline-data-url");
         var m = [30, 10, 30, 10],
@@ -108,8 +113,6 @@
             .style("pointer-events", "all");
 
         var container = svg.append("g");
-
-
 
         d3.json(dataurl, function(data) {
             var durevents = data.filter(t.events.isDuration);
