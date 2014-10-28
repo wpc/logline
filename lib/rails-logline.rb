@@ -69,7 +69,7 @@ module RailsLogLine
       merge_rsyslog_wrapping(encoding_convert(log_content).gsub("\n\n", ' ').gsub("\r\n\r\n", ' ')).each_line do |l|
         if l =~ MINGLE_LOG_PATTERN
           # $1 is time, $2 is thread id, $3 is log content
-          ret << LogEntry.new(DateTime.parse($1), $2, $3)
+          ret << LogEntry.new(DateTime.parse($1).to_time, $2, $3)
         end
       end
       ret
@@ -129,12 +129,8 @@ module RailsLogLine
           elsif entry_content =~ /but was not authorized$/
             if current_req
               current_req.finish_at = entry.time
-              current_req.processing_time = nil
+              current_req.processing_time = (entry.time - current_req.start_at) * 1000
               current_req.response_status = '403'
-              current_req.url = nil
-
-              requests << current_req
-              current_req = nil
             end
           elsif entry_content == 'Rendering errors/unknown (500)'
             if current_req
@@ -149,11 +145,8 @@ module RailsLogLine
           elsif entry_content =~ /^Redirected to http/
             if current_req
               current_req.finish_at = entry.time
-              current_req.processing_time = nil
+              current_req.processing_time = (entry.time - current_req.start_at) * 1000
               current_req.response_status = 302
-              current_req.url = nil
-              requests << current_req
-              current_req = nil
             end
           elsif entry_content =~ /(Logging to org\.slf4j\.impl.Log4jLoggerAdapter|Loading web.xml from)/
             reboots << Reboot.new(entry.time)
