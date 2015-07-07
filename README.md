@@ -1,7 +1,7 @@
-logline
-=======
+Mingle Logline
+==============
 
-a log visualization tool
+a log visualization tool for mingle
 
 ```
 ruby lib/rails-logline.rb ./mingle.log.1 ./mingle.log.2 > data.json
